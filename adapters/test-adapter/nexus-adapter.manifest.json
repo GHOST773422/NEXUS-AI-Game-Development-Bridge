@@ -1,0 +1,27 @@
+{
+  "manifestVersion": "1.0",
+  "adapterId": "nexus.test.protocol_harness",
+  "displayName": "[TEST ADAPTER] Synthetic Protocol Harness",
+  "version": "1.0.0",
+  "runtimeLanguage": "Python",
+  "engineKind": "TestHarness",
+  "isTestAdapter": true,
+  "protocolVersion": "1.0.0",
+  "minDaemonProtocolVersion": "1.0.0",
+  "maxDaemonProtocolVersion": "1.99.99",
+  "transport": {
+    "kind": "stdio",
+    "command": ["python", "adapters/test-adapter/test_adapter_server.py"]
+  },
+  "entrypoint": "adapters/test-adapter/test_adapter_server.py",
+  "capabilities": [
+    "protocol.echo",
+    "protocol.state_inspection",
+    "protocol.screenshot_stub",
+    "protocol.event_stream"
+  ],
+  "requestedPermissions": ["project:read"],
+  "supportedEngineVersions": ["0.0.0-synthetic"],
+  "author": "NEXUS Architecture Team",
+  "description": "Explicitly marked synthetic protocol harness implementing all 11 UniversalEngineAdapter JSON-RPC 2.0 methods for automated protocol verification. Never represents a real game engine."
+}

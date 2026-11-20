@@ -1,0 +1,10 @@
+{
+  "name": "com.nexus.bridge",
+  "version": "1.0.0",
+  "displayName": "NEXUS Unity Editor Bridge",
+  "description": "Native C# Editor integration connecting Unity Editor (Windows 10/11) to the NEXUS local daemon via JSON-RPC 2.0 TCP loopback.",
+  "unity": "2022.3",
+  "author": {
+    "name": "NEXUS Architecture Team"
+  }
+}

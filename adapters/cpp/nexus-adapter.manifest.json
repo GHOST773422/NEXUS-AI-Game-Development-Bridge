@@ -1,0 +1,29 @@
+{
+  "manifestVersion": "1.0",
+  "adapterId": "nexus.unreal.cpp_editor",
+  "displayName": "Unreal C++ Editor Bridge Adapter (Future)",
+  "version": "0.1.0",
+  "runtimeLanguage": "C++",
+  "engineKind": "Unreal",
+  "isTestAdapter": false,
+  "protocolVersion": "1.0.0",
+  "minDaemonProtocolVersion": "1.0.0",
+  "maxDaemonProtocolVersion": "1.99.99",
+  "transport": {
+    "kind": "tcp-loopback",
+    "host": "127.0.0.1",
+    "port": 47203
+  },
+  "entrypoint": "adapters/cpp/src/NexusCppBridgeModule.cpp",
+  "capabilities": [
+    "engine.info",
+    "project.discover",
+    "world.outliner",
+    "asset.registry",
+    "screenshot.capture"
+  ],
+  "requestedPermissions": ["project:read", "scene:write", "editor:execute"],
+  "supportedEngineVersions": ["5.4", "5.5"],
+  "author": "NEXUS Architecture Team",
+  "description": "Plugin manifest contract for future native C++ / Unreal Engine editor integrations speaking NDJSON JSON-RPC 2.0 over TCP loopback."
+}

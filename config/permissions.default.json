@@ -1,0 +1,14 @@
+{
+  "projectDirectorySandboxing": true,
+  "allowOutOfProjectWrites": false,
+  "requireApprovalForScopes": [
+    "assets:modify",
+    "build:export",
+    "process:restricted"
+  ],
+  "allowedProcessExecutables": [
+    "Unity.exe",
+    "Godot_v4.exe",
+    "dotnet.exe"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "manifestVersion": "1.0",
+  "adapterId": "nexus.godot.gdscript_editor",
+  "displayName": "Godot GDScript EditorPlugin Adapter",
+  "version": "1.0.0",
+  "runtimeLanguage": "GDScript",
+  "engineKind": "Godot",
+  "isTestAdapter": false,
+  "protocolVersion": "1.0.0",
+  "minDaemonProtocolVersion": "1.0.0",
+  "maxDaemonProtocolVersion": "1.99.99",
+  "transport": {
+    "kind": "tcp-loopback",
+    "host": "127.0.0.1",
+    "port": 47202
+  },
+  "entrypoint": "adapters/godot/addons/nexus_bridge/plugin.gd",
+  "capabilities": [
+    "engine.info",
+    "project.discover",
+    "editor.version_check",
+    "scene.inspect",
+    "scene.hierarchy",
+    "node.create",
+    "node.modify",
+    "node.delete",
+    "transform.manage",
+    "script.create",
+    "script.modify",
+    "resource.manage",
+    "asset.inspect",
+    "signal.manage",
+    "scene.save",
+    "runtime.launch",
+    "runtime.monitor",
+    "debugger.inspect",
+    "error.report",
+    "screenshot.capture",
+    "export.status",
+    "asset.uid_inspection"
+  ],
+  "requestedPermissions": [
+    "project:read",
+    "scene:write",
+    "script:write",
+    "assets:modify",
+    "editor:execute",
+    "build:export"
+  ],
+  "supportedEngineVersions": ["4.2", "4.3", "4.4"],
+  "author": "NEXUS Architecture Team",
+  "description": "Native Godot 4.2+ GDScript EditorPlugin adapter communicating over 127.0.0.1 TCP NDJSON JSON-RPC 2.0."
+}

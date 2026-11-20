@@ -1,0 +1,50 @@
+{
+  "manifestVersion": "1.0",
+  "adapterId": "nexus.unity.csharp_editor",
+  "displayName": "Unity C# Editor Bridge Adapter",
+  "version": "1.0.0",
+  "runtimeLanguage": "C#",
+  "engineKind": "Unity",
+  "isTestAdapter": false,
+  "protocolVersion": "1.0.0",
+  "minDaemonProtocolVersion": "1.0.0",
+  "maxDaemonProtocolVersion": "1.99.99",
+  "transport": {
+    "kind": "tcp-loopback",
+    "host": "127.0.0.1",
+    "port": 47201
+  },
+  "entrypoint": "adapters/unity/Editor/NexusUnityBridgeEntrypoint.cs",
+  "capabilities": [
+    "engine.info",
+    "project.discover",
+    "editor.state",
+    "scene.hierarchy",
+    "object.inspect",
+    "object.create",
+    "object.delete",
+    "object.transform",
+    "component.manage",
+    "script.create",
+    "script.modify",
+    "asset.database",
+    "asset.import",
+    "scene.save",
+    "compilation.monitor",
+    "console.logs",
+    "playmode.control",
+    "screenshot.capture",
+    "build.status"
+  ],
+  "requestedPermissions": [
+    "project:read",
+    "scene:write",
+    "script:write",
+    "assets:modify",
+    "editor:execute",
+    "build:export"
+  ],
+  "supportedEngineVersions": ["2022.3 LTS", "6000.0 LTS"],
+  "author": "NEXUS Architecture Team",
+  "description": "Native Unity Editor C# TCP loopback adapter communicating via language-neutral NDJSON JSON-RPC 2.0."
+}

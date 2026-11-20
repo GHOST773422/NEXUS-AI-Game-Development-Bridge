@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "com.nexus.bridge": "file:../..",
+    "com.unity.test-framework": "1.1.33",
+    "com.unity.ugui": "1.0.0"
+  },
+  "testables": [
+    "com.nexus.bridge"
+  ]
+}

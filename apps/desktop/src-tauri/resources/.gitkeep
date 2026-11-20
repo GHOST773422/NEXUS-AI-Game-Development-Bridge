@@ -1,0 +1,1 @@
+# Bundled Unity UPM package and Godot EditorPlugin files are staged into resources/adapters/ by npm run stage:adapters.

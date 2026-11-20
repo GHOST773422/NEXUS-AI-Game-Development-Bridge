@@ -1,0 +1,25 @@
+{
+  "product": "NEXUS",
+  "protocolVersion": "2026.1.0-stage1",
+  "network": {
+    "bindAddress": "127.0.0.1",
+    "restPort": 47100,
+    "websocketPort": 47101,
+    "mcpHttpPort": 47102,
+    "requireBearerToken": true
+  },
+  "storage": {
+    "sqliteFilename": "nexus.db",
+    "checkpointRetentionCount": 25
+  },
+  "engines": {
+    "unity": {
+      "enabled": true,
+      "packageId": "com.nexus.bridge"
+    },
+    "godot": {
+      "enabled": true,
+      "pluginName": "nexus_bridge"
+    }
+  }
+}
