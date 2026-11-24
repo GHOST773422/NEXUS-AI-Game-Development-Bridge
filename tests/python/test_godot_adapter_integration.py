@@ -7,6 +7,8 @@ import configparser
 import json
 from pathlib import Path
 import re
+import shutil
+import subprocess
 import tempfile
 import unittest
 
@@ -356,6 +358,78 @@ class TestGodotAdapterIntegration(unittest.IsolatedAsyncioTestCase):
 
         verify_gd = (_TEST_PROJECT_DIR / "tests" / "nexus_godot_verification.gd").read_text(encoding="utf-8")
         self.assertIn("NEXUS_GODOT_VERIFICATION_PASSED", verify_gd)
+
+    def test_native_godot_verification_and_editor_plugin_load_when_available(self) -> None:
+        godot = shutil.which("godot4") or shutil.which("godot")
+        if godot is None:
+            self.skipTest("Godot 4.2+ is not installed; native editor validation is optional.")
+
+        version = subprocess.run(
+            [godot, "--version"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+            check=False,
+        )
+        version_match = re.match(r"(\d+)\.(\d+)", version.stdout.strip())
+        if (
+            version.returncode != 0
+            or version_match is None
+            or int(version_match.group(1)) != 4
+            or int(version_match.group(2)) < 2
+        ):
+            self.skipTest(f"Godot 4.2+ is required; found {version.stdout.strip()!r}.")
+
+        with tempfile.TemporaryDirectory(prefix="nexus-godot-verification-") as temp_dir:
+            project_dir = Path(temp_dir) / "test_project"
+            shutil.copytree(
+                _TEST_PROJECT_DIR,
+                project_dir,
+                ignore=shutil.ignore_patterns(".godot", "*.uid"),
+            )
+
+            verification = subprocess.run(
+                [
+                    godot,
+                    "--headless",
+                    "--path",
+                    str(project_dir),
+                    "--script",
+                    "res://tests/nexus_godot_verification.gd",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=60,
+                check=False,
+            )
+            verification_output = verification.stdout + verification.stderr
+            self.assertEqual(verification.returncode, 0, verification_output)
+            self.assertIn("NEXUS_GODOT_VERIFICATION_PASSED", verification_output)
+
+            editor_load = subprocess.Popen(
+                [godot, "--headless", "--editor", "--path", str(project_dir)],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+            forced_stop = False
+            try:
+                editor_output, _ = editor_load.communicate(timeout=20)
+            except subprocess.TimeoutExpired:
+                # A headless editor remains open after plugin startup, like the GUI editor.
+                forced_stop = True
+                editor_load.terminate()
+                try:
+                    editor_output, _ = editor_load.communicate(timeout=5)
+                except subprocess.TimeoutExpired:
+                    editor_load.kill()
+                    editor_output, _ = editor_load.communicate(timeout=5)
+
+            self.assertIn("first_scan_filesystem: end", editor_output)
+            if not forced_stop:
+                self.assertEqual(editor_load.returncode, 0, editor_output)
+            for error_marker in ("SCRIPT ERROR:", "Parse Error:", "Compile Error:", "Failed to load script"):
+                self.assertNotIn(error_marker, editor_output, editor_output)
 
     async def test_rejects_incompatible_godot_version_without_fake_connection(self) -> None:
         legacy_server = _LoopbackGodotProtocolServer(
