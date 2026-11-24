@@ -540,16 +540,21 @@ func save_scene(args: Dictionary) -> Dictionary:
 	if root == null:
 		return _rpc_error(-32004, "NEXUS_NO_EDITED_SCENE", "No scene is currently open to save.")
 	var custom_path := str(args.get("scenePath", "")).strip_edges()
-	var err: Error
 	if not custom_path.is_empty():
 		var path_err := _validate_res_path(custom_path, ".tscn")
 		if not path_err.is_empty():
 			return _rpc_error(-32602, "NEXUS_SANDBOX_VIOLATION", path_err)
-		err = EditorInterface.save_scene_as(custom_path)
-	else:
-		if root.scene_file_path.is_empty():
-			return _rpc_error(-32602, "NEXUS_UNTITLED_SCENE", "Active scene has no path; provide 'scenePath' ending with .tscn.")
-		err = EditorInterface.save_scene()
+		EditorInterface.save_scene_as(custom_path)
+		var saved_to_path := root.scene_file_path == custom_path and FileAccess.file_exists(custom_path)
+		return {
+			"saved": saved_to_path,
+			"errorCode": OK if saved_to_path else ERR_CANT_CREATE,
+			"scenePath": root.scene_file_path,
+		}
+
+	if root.scene_file_path.is_empty():
+		return _rpc_error(-32602, "NEXUS_UNTITLED_SCENE", "Active scene has no path; provide 'scenePath' ending with .tscn.")
+	var err: Error = EditorInterface.save_scene()
 
 	return {
 		"saved": err == OK,
@@ -588,7 +593,9 @@ func launch_runtime(args: Dictionary) -> Dictionary:
 
 func get_runtime_status() -> Dictionary:
 	var playing := EditorInterface.is_playing_scene()
-	var uptime_ms := (Time.get_ticks_msec() - state_tracker.runtime_started_msec) if playing and state_tracker.runtime_started_msec > 0 else 0
+	var uptime_ms: int = 0
+	if playing and state_tracker.runtime_started_msec > 0:
+		uptime_ms = int(Time.get_ticks_msec() - int(state_tracker.runtime_started_msec))
 	return {
 		"isPlaying": playing,
 		"playingScene": EditorInterface.get_playing_scene(),
