@@ -77,6 +77,7 @@ PERMISSION_CATEGORY_BY_SCOPE: dict[PermissionScope, str] = {
 
 DESTRUCTIVE_SCOPES = frozenset(
     {
+        PermissionScope.WRITE_SCENE,
         PermissionScope.MODIFY_ASSETS,
         PermissionScope.BUILD_EXPORT,
         PermissionScope.PROCESS_SPAWN_RESTRICTED,

@@ -131,6 +131,10 @@ class TestStage9SecurityRecoveryPerformance(unittest.IsolatedAsyncioTestCase):
             self.daemon.permissions.validate_destructive_operation(
                 [PermissionScope.BUILD_EXPORT], approved=False
             )
+        with self.assertRaises(PermissionDeniedError):
+            self.daemon.permissions.validate_destructive_operation(
+                [PermissionScope.WRITE_SCENE], approved=False
+            )
 
         # 5. Plugin manifest tampering / SHA-256 mismatch & traversal rejected
         plugin_dir = self.tmp_root / "plugin_pkg"
@@ -407,7 +411,7 @@ class TestStage9SecurityRecoveryPerformance(unittest.IsolatedAsyncioTestCase):
                 "requestedPermissions": ["project:read", "script:write", "scene:write", "assets:modify"],
                 "supportedEngineVersions": ["2022.3"],
             }
-            # Patch srv listTools to include unity.delete_object and unity.import_asset
+            # Patch srv listTools to include scene, asset, and delete operations.
             orig_dispatch = srv._dispatch
 
             def _extended_dispatch(method: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -421,6 +425,14 @@ class TestStage9SecurityRecoveryPerformance(unittest.IsolatedAsyncioTestCase):
                                 "category": "Asset management",
                                 "description": "Import Unity asset.",
                                 "requiredPermissions": ["assets:modify"],
+                                "inputSchema": {"type": "object"},
+                                "outputSchema": {"type": "object"},
+                            },
+                            {
+                                "id": "unity.create_object",
+                                "category": "Object management",
+                                "description": "Create a GameObject in the active scene.",
+                                "requiredPermissions": ["scene:write"],
                                 "inputSchema": {"type": "object"},
                                 "outputSchema": {"type": "object"},
                             },
@@ -480,6 +492,22 @@ class TestStage9SecurityRecoveryPerformance(unittest.IsolatedAsyncioTestCase):
             )
             self.assertEqual(st_del, 403)
 
+            # REST /tools/execute also blocks non-destructive-looking scene writes.
+            st_create, _ = await dispatch_rest_request(
+                self.daemon,
+                "POST",
+                "/api/v1/adapters/nexus-unity-secgate/tools/execute",
+                self.auth_headers,
+                json.dumps(
+                    {
+                        "toolId": "unity.create_object",
+                        "projectId": proj.id,
+                        "arguments": {"name": "UnapprovedObject"},
+                    }
+                ).encode("utf-8"),
+            )
+            self.assertEqual(st_create, 403)
+
             # REST /tools/execute blocks path traversal -> 403
             st_trav, _ = await dispatch_rest_request(
                 self.daemon,
@@ -506,6 +534,11 @@ class TestStage9SecurityRecoveryPerformance(unittest.IsolatedAsyncioTestCase):
                 await self.daemon.mcp.call_tool(
                     "nexus-unity-secgate.unity.delete_object",
                     {"projectId": proj.id, "path": "Cube"},
+                )
+            with self.assertRaises(ValidationError):
+                await self.daemon.mcp.call_tool(
+                    "nexus-unity-secgate.unity.create_object",
+                    {"projectId": proj.id, "name": "UnapprovedObject"},
                 )
 
             # 2. Live WebSocket connects via ?token= query auth and shuts down in < 1.0s
